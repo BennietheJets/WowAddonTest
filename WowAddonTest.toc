@@ -1,0 +1,9 @@
+## Interface: 11505
+## Title: WowAddonTest
+## Notes: A basic test addon.
+## Author: Junie
+## Version: 1.0
+## SavedVariables: WowAddonTestDB
+
+Spells.lua
+WowAddonTest.lua
