@@ -1,0 +1,3 @@
+local addonName, addonTable = ...
+
+--Black Temple Boss Mechanics

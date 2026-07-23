@@ -1,0 +1,3 @@
+local addonName, addonTable = ...
+
+--Tempest Keep Boss Mechanics

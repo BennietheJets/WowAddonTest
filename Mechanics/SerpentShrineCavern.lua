@@ -1,0 +1,3 @@
+local addonName, addonTable = ...
+
+--Serpent Shrine Cavern Boss Mechanics

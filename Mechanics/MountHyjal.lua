@@ -1,0 +1,3 @@
+local addonName, addonTable = ...
+
+--Mount Hyjal Boss Mechanics
