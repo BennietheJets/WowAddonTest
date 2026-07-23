@@ -1,7 +1,7 @@
 local addonName, addonTable = ...
 
 -- Function to determine the player's role category
-local function GetPlayerRoleCategory()
+function addonTable:GetPlayerRoleCategory()
     -- Check if we are in Retail (Retail has GetSpecialization)
     if GetSpecialization then
         local specIndex = GetSpecialization()
@@ -73,7 +73,7 @@ local function GetPlayerRoleCategory()
     return "MELEE" -- Default fallback
 end
 
-print("|cff00ff00" .. addonName .. " loaded!|r (Role: " .. GetPlayerRoleCategory() .. ")")
+print("|cff00ff00" .. addonName .. " loaded!|r (Role: " .. addonTable:GetPlayerRoleCategory() .. ")")
 
 
 local frame = CreateFrame("Frame")
@@ -81,6 +81,7 @@ frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("ENCOUNTER_START")
 frame:RegisterEvent("ENCOUNTER_END")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:RegisterEvent("READY_CHECK")
 
 local function OnEvent(self, event, ...)
     if event == "ADDON_LOADED" then
@@ -89,6 +90,17 @@ local function OnEvent(self, event, ...)
             -- Initialize SavedVariables
             WowAddonTestDB = WowAddonTestDB or {}
             WowAddonTestDB.spells = WowAddonTestDB.spells or {}
+            
+            -- Initialize RaidTools
+            if addonTable.RaidTools and addonTable.RaidTools.Initialize then
+                addonTable.RaidTools:Initialize()
+            end
+            
+            -- Initialize Comm
+            if addonTable.Comm and addonTable.Comm.Initialize then
+                addonTable.Comm:Initialize()
+            end
+            
             print("|cff00ff00" .. addonName .. " database initialized.|r")
         end
         
@@ -101,10 +113,18 @@ local function OnEvent(self, event, ...)
         local status = endStatus == 1 and "Defeated" or "Wipe"
         print(string.format("Boss Fight Ended: %s - %s", encounterName, status))
         
+    elseif event == "READY_CHECK" then
+        if addonTable.ReportMissingBuffs then
+            addonTable:ReportMissingBuffs()
+        end
+
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        local _, subevent, _, _, sourceName, sourceFlags, _, _, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
+        local _, subevent, _, _, sourceName, sourceFlags, _, destGUID, destName, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
         
-        -- We focus on spell casting events
+        -- Check if this spell is in our configuration
+        local ability = addonTable.BossAbilities[spellId]
+        
+        -- Handle Spell Casting
         if subevent == "SPELL_CAST_START" or subevent == "SPELL_CAST_SUCCESS" then
             -- Store spell in database if it's new
             if WowAddonTestDB and WowAddonTestDB.spells and spellId then
@@ -119,29 +139,42 @@ local function OnEvent(self, event, ...)
                 end
             end
 
-            -- Check if this spell is in our configuration
-            local ability = addonTable.BossAbilities[spellId]
-            
-            if ability then
-                local role = GetPlayerRoleCategory()
-                -- Use role-specific message if available, otherwise fallback to default message or spell name
+            if ability and (not ability.type or ability.type == "cast") then
+                local role = addonTable:GetPlayerRoleCategory()
                 local message = ability[role] or ability.message or spellName
                 
-                -- 1. Display Alert
                 RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
-                PlaySound(8959, "Master") -- Play "Raid Warning" sound
+                PlaySound(8959, "Master")
                 
-                -- 2. Handle Simple Timer
                 if ability.timer then
-                    print(string.format("Timer started for: %s", spellName))
                     C_Timer.After(ability.timer, function()
                         RaidNotice_AddMessage(RaidWarningFrame, ">>> " .. spellName .. " NOW! <<<", ChatTypeInfo["RAID_WARNING"])
                         PlaySound(8960, "Master")
                     end)
                 end
-            elseif sourceFlags and bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 then
-                -- If it's an NPC spell we DON'T know yet, print it to chat so you can find the ID
+            elseif sourceFlags and bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 and not ability then
                 print(string.format("New NPC Spell: %s (%d) from %s", spellName, spellId, sourceName or "Unknown"))
+            end
+
+        -- Handle Auras (Debuffs/Buffs)
+        elseif subevent == "SPELL_AURA_APPLIED" then
+            if ability and ability.type == "aura" then
+                -- Check if it's on the player
+                local isPlayer = (destGUID == UnitGUID("player"))
+                
+                if isPlayer or not ability.playerOnly then
+                    local role = addonTable:GetPlayerRoleCategory()
+                    local message = ability[role] or ability.message or spellName
+                    
+                    if isPlayer then
+                        message = "YOU: " .. message
+                    else
+                        message = destName .. ": " .. message
+                    end
+                    
+                    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
+                    PlaySound(8959, "Master")
+                end
             end
         end
     end

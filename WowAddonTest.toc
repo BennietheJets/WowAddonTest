@@ -6,4 +6,8 @@
 ## SavedVariables: WowAddonTestDB
 
 Spells.lua
+Mechanics\Karazhan.lua
+Comm.lua
+Buffs.lua
+RaidTools.lua
 WowAddonTest.lua
