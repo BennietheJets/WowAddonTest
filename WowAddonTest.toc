@@ -7,6 +7,10 @@
 
 Spells.lua
 Mechanics\Karazhan.lua
+Mechanics\SerpentShrineCavern.lua
+Mechanics\TempestKeep.lua
+Mechanics\MountHyjal.lua
+Mechanics\BlackTemple.lua
 Comm.lua
 Buffs.lua
 RaidTools.lua
