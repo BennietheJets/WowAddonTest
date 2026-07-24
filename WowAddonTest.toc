@@ -1,7 +1,7 @@
 ## Interface: 11505
 ## Title: WowAddonTest
 ## Notes: A basic test addon.
-## Author: Junie
+## Author: Your Mom
 ## Version: 1.0
 ## SavedVariables: WowAddonTestDB
 
