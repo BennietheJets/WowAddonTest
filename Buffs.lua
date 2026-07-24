@@ -22,7 +22,7 @@ addonTable.ClassBuffs = {
 addonTable.PallyRankings = {
     ["WARRIOR"] = {
         DEFAULT = { "Salvation", "Might", "Kings", "Light", "Sanctuary" },
-        TANK    = { "Kings", "Sanctuary", "Might", "Light" },
+        TANK    = { "Kings", "Might", "Light", "Sanctuary" },
     },
     ["ROGUE"]   = {
         DEFAULT = { "Salvation", "Might", "Kings", "Light" },
@@ -31,7 +31,7 @@ addonTable.PallyRankings = {
         DEFAULT = { "Salvation", "Wisdom", "Kings", "Light" },
     },
     ["WARLOCK"] = {
-        DEFAULT = { "Salvation", "Wisdom", "Kings", "Light" },
+        DEFAULT = { "Salvation", "Kings", "Wisdom", "Light" },
     },
     ["PRIEST"]  = {
         DEFAULT = { "Salvation", "Wisdom", "Kings", "Light" },
@@ -56,7 +56,7 @@ addonTable.PallyRankings = {
     },
     ["PALADIN"] = {
         DEFAULT = { "Salvation", "Wisdom", "Kings", "Might", "Light" },
-        TANK    = { "Kings", "Sanctuary", "Wisdom", "Might", "Light" }, -- Prot Tank
+        TANK    = { "Kings", "Wisdom", "Might", "Light", "Sanctuary" }, -- Prot Tank
         MELEE   = { "Salvation", "Might", "Kings", "Wisdom", "Light" }, -- Retribution
         HEALER  = { "Wisdom", "Kings", "Salvation", "Light" }, -- Holy Healer
     },
