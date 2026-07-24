@@ -2,72 +2,40 @@ local addonName, addonTable = ...
 
 -- Function to determine the player's role category
 function addonTable:GetPlayerRoleCategory()
-    -- Check if we are in Retail (Retail has GetSpecialization)
-    if GetSpecialization then
-        local specIndex = GetSpecialization()
-        if not specIndex or specIndex == 0 then return "UNKNOWN" end
-        
-        local _, _, _, _, role = GetSpecializationInfo(specIndex)
-        if role == "TANK" then return "TANK" end
-        if role == "HEALER" then return "HEALER" end
-        
-        -- If role is DAMAGER, we distinguish between Melee and Ranged
-        local _, class = UnitClass("player")
-        
-        -- Ranged-only classes
-        if class == "MAGE" or class == "WARLOCK" or class == "PRIEST" or class == "EVOKER" then
-            return "RANGED"
+    -- Classic / TBC Logic (Determining spec by talent points)
+    local _, class = UnitClass("player")
+    
+    -- Pure roles for TBC
+    if class == "MAGE" or class == "WARLOCK" or class == "HUNTER" then return "RANGED" end
+    if class == "ROGUE" then return "MELEE" end
+    
+    -- Check talent tabs to find the "active" spec
+    local maxPoints = 0
+    local specIndex = 1
+    for i = 1, 3 do
+        local _, _, pointsSpent = GetTalentTabInfo(i)
+        if (pointsSpent or 0) > maxPoints then
+            maxPoints = pointsSpent
+            specIndex = i
         end
-        
-        -- Melee-only classes
-        if class == "ROGUE" or class == "WARRIOR" or class == "DEATHKNIGHT" or class == "DEMONHUNTER" or class == "MONK" or class == "PALADIN" then
-            return "MELEE"
-        end
-        
-        -- Hybrid classes (indices for Retail)
-        if class == "DRUID" then
-            return (specIndex == 1) and "RANGED" or "MELEE" -- 1: Balance, 2: Feral
-        elseif class == "SHAMAN" then
-            return (specIndex == 1) and "RANGED" or "MELEE" -- 1: Elemental, 2: Enhancement
-        elseif class == "HUNTER" then
-            return (specIndex == 3) and "MELEE" or "RANGED" -- 3: Survival, 1&2: Ranged
-        end
-    else
-        -- Classic / TBC Logic (Determining spec by talent points)
-        local _, class = UnitClass("player")
-        
-        -- Pure roles for TBC
-        if class == "MAGE" or class == "WARLOCK" or class == "HUNTER" then return "RANGED" end
-        if class == "ROGUE" then return "MELEE" end
-        
-        -- Check talent tabs to find the "active" spec
-        local maxPoints = 0
-        local specIndex = 1
-        for i = 1, 3 do
-            local _, _, pointsSpent = GetTalentTabInfo(i)
-            if (pointsSpent or 0) > maxPoints then
-                maxPoints = pointsSpent
-                specIndex = i
-            end
-        end
-        
-        if class == "WARRIOR" then
-            return (specIndex == 3) and "TANK" or "MELEE" -- 3: Protection
-        elseif class == "PALADIN" then
-            if specIndex == 1 then return "HEALER" end -- 1: Holy
-            if specIndex == 2 then return "TANK" end   -- 2: Protection
-            return "MELEE"                             -- 3: Retribution
-        elseif class == "PRIEST" then
-            return (specIndex == 3) and "RANGED" or "HEALER" -- 3: Shadow
-        elseif class == "SHAMAN" then
-            if specIndex == 1 then return "RANGED" end -- 1: Elemental
-            if specIndex == 2 then return "MELEE" end  -- 2: Enhancement
-            return "HEALER"                            -- 3: Restoration
-        elseif class == "DRUID" then
-            if specIndex == 1 then return "RANGED" end -- 1: Balance
-            if specIndex == 3 then return "HEALER" end -- 3: Restoration
-            return "MELEE"                             -- 2: Feral (Tank/DPS)
-        end
+    end
+    
+    if class == "WARRIOR" then
+        return (specIndex == 3) and "TANK" or "MELEE" -- 3: Protection
+    elseif class == "PALADIN" then
+        if specIndex == 1 then return "HEALER" end -- 1: Holy
+        if specIndex == 2 then return "TANK" end   -- 2: Protection
+        return "MELEE"                             -- 3: Retribution
+    elseif class == "PRIEST" then
+        return (specIndex == 3) and "RANGED" or "HEALER" -- 3: Shadow
+    elseif class == "SHAMAN" then
+        if specIndex == 1 then return "RANGED" end -- 1: Elemental
+        if specIndex == 2 then return "MELEE" end  -- 2: Enhancement
+        return "HEALER"                            -- 3: Restoration
+    elseif class == "DRUID" then
+        if specIndex == 1 then return "RANGED" end -- 1: Balance
+        if specIndex == 3 then return "HEALER" end -- 3: Restoration
+        return "MELEE"                             -- 2: Feral (Tank/DPS)
     end
     
     return "MELEE" -- Default fallback
