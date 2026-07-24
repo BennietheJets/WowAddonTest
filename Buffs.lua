@@ -18,18 +18,88 @@ addonTable.ClassBuffs = {
     ["WARLOCK"] = { "Intellect" },
 }
 
--- Paladin Blessing Rankings per Class
+-- Paladin Blessing Rankings per Class (Role-aware)
 addonTable.PallyRankings = {
-    ["WARRIOR"] = { "Kings", "Might", "Salvation", "Light", "Sanctuary" },
-    ["ROGUE"]   = { "Kings", "Might", "Salvation", "Light" },
-    ["MAGE"]    = { "Kings", "Salvation", "Wisdom", "Light" },
-    ["WARLOCK"] = { "Kings", "Salvation", "Wisdom", "Light" },
-    ["PRIEST"]  = { "Kings", "Salvation", "Wisdom", "Light" },
-    ["HUNTER"]  = { "Kings", "Might", "Salvation", "Wisdom", "Light" },
-    ["DRUID"]   = { "Kings", "Salvation", "Wisdom", "Light", "Might" },
-    ["SHAMAN"]  = { "Kings", "Salvation", "Wisdom", "Light", "Might" },
-    ["PALADIN"] = { "Kings", "Salvation", "Wisdom", "Light", "Sanctuary" },
+    ["WARRIOR"] = {
+        DEFAULT = { "Salvation", "Might", "Kings", "Light", "Sanctuary" },
+        TANK    = { "Kings", "Sanctuary", "Might", "Light" },
+    },
+    ["ROGUE"]   = {
+        DEFAULT = { "Salvation", "Might", "Kings", "Light" },
+    },
+    ["MAGE"]    = {
+        DEFAULT = { "Salvation", "Wisdom", "Kings", "Light" },
+    },
+    ["WARLOCK"] = {
+        DEFAULT = { "Salvation", "Wisdom", "Kings", "Light" },
+    },
+    ["PRIEST"]  = {
+        DEFAULT = { "Salvation", "Wisdom", "Kings", "Light" },
+        RANGED  = { "Salvation", "Wisdom", "Kings", "Light" }, -- Shadow DPS
+        HEALER  = { "Wisdom", "Kings", "Salvation", "Light" }, -- Healers need mana > threat reduction
+    },
+    ["HUNTER"]  = {
+        DEFAULT = { "Salvation", "Might", "Kings", "Wisdom", "Light" },
+    },
+    ["DRUID"]   = {
+        DEFAULT = { "Salvation", "Wisdom", "Kings", "Might", "Light" },
+        TANK    = { "Kings", "Might", "Light" }, -- Feral Tank (Sanctuary has no effect on Druids)
+        MELEE   = { "Salvation", "Might", "Kings", "Wisdom", "Light" }, -- Feral DPS
+        RANGED  = { "Salvation", "Wisdom", "Kings", "Light" }, -- Balance DPS
+        HEALER  = { "Wisdom", "Kings", "Salvation", "Light" }, -- Resto Healer
+    },
+    ["SHAMAN"]  = {
+        DEFAULT = { "Salvation", "Wisdom", "Kings", "Might", "Light" },
+        MELEE   = { "Salvation", "Might", "Kings", "Wisdom", "Light" }, -- Enhancement
+        RANGED  = { "Salvation", "Wisdom", "Kings", "Light" }, -- Elemental
+        HEALER  = { "Wisdom", "Kings", "Salvation", "Light" }, -- Restoration
+    },
+    ["PALADIN"] = {
+        DEFAULT = { "Salvation", "Wisdom", "Kings", "Might", "Light" },
+        TANK    = { "Kings", "Sanctuary", "Wisdom", "Might", "Light" }, -- Prot Tank
+        MELEE   = { "Salvation", "Might", "Kings", "Wisdom", "Light" }, -- Retribution
+        HEALER  = { "Wisdom", "Kings", "Salvation", "Light" }, -- Holy Healer
+    },
 }
+
+function addonTable:GetUnitRole(unit)
+    local _, class = UnitClass(unit)
+    if not class then return "MELEE" end
+
+    -- 1. Check if they are in the Raid Leader's assignment list
+    local name = UnitName(unit)
+    if WowAddonTestDB and WowAddonTestDB.assignments and WowAddonTestDB.assignments.tanks then
+        for i = 1, 3 do
+            if WowAddonTestDB.assignments.tanks[i] == name then
+                return "TANK"
+            end
+        end
+    end
+
+    -- 2. If it's the player, use the advanced talent-based detection from WowAddonTest.lua
+    if unit == "player" then
+        return self:GetPlayerRoleCategory()
+    end
+
+    -- 3. Heuristic detection for others in TBC
+    if class == "WARRIOR" then
+        -- Check for Defensive Stance (Simplified check by name)
+        if AuraUtil.FindAuraByName("Defensive Stance", unit, "HELPFUL") then return "TANK" end
+    elseif class == "DRUID" then
+        -- Check for Bear Forms
+        if AuraUtil.FindAuraByName("Bear Form", unit, "HELPFUL") or AuraUtil.FindAuraByName("Dire Bear Form", unit, "HELPFUL") then return "TANK" end
+    elseif class == "PALADIN" then
+        -- Check for Righteous Fury
+        if AuraUtil.FindAuraByName("Righteous Fury", unit, "HELPFUL") then return "TANK" end
+    end
+
+    -- Fallback based on class defaults if not detected as TANK
+    if class == "MAGE" or class == "WARLOCK" or class == "HUNTER" then return "RANGED" end
+    if class == "ROGUE" then return "MELEE" end
+    if class == "PRIEST" then return "HEALER" end
+    
+    return "MELEE"
+end
 
 function addonTable:GetNumPaladins()
     local count = 0
@@ -84,8 +154,11 @@ function addonTable:CheckUnitBuffs(unit, numPaladins)
         end
     end
     
-    -- Check Paladin Blessings based on rank and number of Paladins
-    local ranking = self.PallyRankings[class]
+    -- Check Paladin Blessings based on rank, role, and number of Paladins
+    local role = self:GetUnitRole(unit)
+    local classRankings = self.PallyRankings[class]
+    local ranking = classRankings and (classRankings[role] or classRankings["DEFAULT"])
+
     if ranking and numPaladins > 0 then
         local needed = math.min(numPaladins, #ranking)
         for i = 1, needed do
