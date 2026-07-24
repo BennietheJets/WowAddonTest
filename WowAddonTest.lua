@@ -58,6 +58,7 @@ local function OnEvent(self, event, ...)
             -- Initialize SavedVariables
             WowAddonTestDB = WowAddonTestDB or {}
             WowAddonTestDB.spells = WowAddonTestDB.spells or {}
+            WowAddonTestDB.sscLog = WowAddonTestDB.sscLog or {}
             
             -- Initialize RaidTools
             if addonTable.RaidTools and addonTable.RaidTools.Initialize then
@@ -89,6 +90,16 @@ local function OnEvent(self, event, ...)
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
         local _, subevent, _, _, sourceName, sourceFlags, _, destGUID, destName, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
         
+        -- SSC Recording
+        if addonTable.SSC and addonTable.SSC.recording then
+            local _, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+            if instanceID == 548 then
+                if subevent == "SPELL_CAST_START" or subevent == "SPELL_CAST_SUCCESS" then
+                    addonTable.SSC:LogSpell(spellId, spellName, sourceName)
+                end
+            end
+        end
+
         -- Check if this spell is in our configuration
         local ability = addonTable.BossAbilities[spellId]
         

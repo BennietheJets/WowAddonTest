@@ -140,7 +140,20 @@ end
 -- Slash command to open the tools
 SLASH_WOWADDONTEST1 = "/wat"
 SlashCmdList["WOWADDONTEST"] = function(msg)
-    if msg == "raid" or msg == "tools" or msg == "" then
+    local cmd, arg = msg:match("^(%S*)%s*(.-)$")
+    cmd = cmd:lower()
+    
+    if cmd == "ssc" then
+        if arg == "record" then
+            addonTable.SSC:ToggleRecording()
+        elseif arg == "list" then
+            addonTable.SSC:ListSpells()
+        elseif arg == "clear" then
+            addonTable.SSC:ClearLog()
+        else
+            print("|cff00ffff[WowAddonTest]|r SSC Commands: record, list, clear")
+        end
+    elseif msg == "raid" or msg == "tools" or msg == "" then
         addonTable.RaidTools:Toggle()
     end
 end
