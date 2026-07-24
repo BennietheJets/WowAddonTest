@@ -14,4 +14,5 @@ Mechanics\BlackTemple.lua
 Comm.lua
 Buffs.lua
 RaidTools.lua
+GroupAdvisor.lua
 WowAddonTest.lua
