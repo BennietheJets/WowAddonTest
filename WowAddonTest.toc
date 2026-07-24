@@ -13,6 +13,6 @@ Mechanics\MountHyjal.lua
 Mechanics\BlackTemple.lua
 Comm.lua
 Buffs.lua
-RaidTools.lua
 GroupAdvisor.lua
+RaidTools.lua
 WowAddonTest.lua

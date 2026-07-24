@@ -165,7 +165,84 @@ function RaidTools:CreateAdvisorUI(parent)
     -- Hook scan completion to update UI
     addonTable.GroupAdvisor.onScanComplete = function()
         self:UpdateAdvisorUI()
+        if self.autoAssignPending then
+            self:AutoAssignRoles()
+            self.autoAssignPending = false
+            self:Broadcast()
+        end
     end
+end
+
+function RaidTools:AutoAssignRoles()
+    local raidData = addonTable.GroupAdvisor.raidData
+    if not raidData or next(raidData) == nil then
+        print("|cffff0000[WowAddonTest] No scan data available. Run /wat scan first.|r")
+        return
+    end
+
+    print("|cffffff00[WowAddonTest] Auto-assigning roles based on scan...|r")
+    
+    -- Reset current assignments for a clean "re-detect"
+    WowAddonTestDB.assignments.tanks = { [1] = "", [2] = "", [3] = "" }
+    WowAddonTestDB.assignments.cc[1].name = ""
+    WowAddonTestDB.assignments.cc[2].name = ""
+    
+    local tanksFound = 0
+    local magesFound = 0
+    local locksFound = 0
+    
+    -- 1. Look for Dedicated Tanks (Warrior Prot, Paladin Prot)
+    for name, data in pairs(raidData) do
+        if data.role == "TANK" and tanksFound < 3 then
+            tanksFound = tanksFound + 1
+            WowAddonTestDB.assignments.tanks[tanksFound] = name
+            if self.tankInputs and self.tankInputs[tanksFound] then
+                self.tankInputs[tanksFound]:SetText(name)
+            end
+            print(string.format("|cff00ff00[WowAddonTest]|r Assigned Tank %d: %s (%s)", tanksFound, name, data.name))
+        end
+    end
+    
+    -- 2. Look for Feral Druids if we still need tanks
+    if tanksFound < 3 then
+        for name, data in pairs(raidData) do
+            if data.class == "DRUID" and data.name == "Feral" and tanksFound < 3 then
+                -- Check if already assigned (unlikely as they are MELEE role usually)
+                local alreadyAssigned = false
+                for i=1, tanksFound do if WowAddonTestDB.assignments.tanks[i] == name then alreadyAssigned = true end end
+                
+                if not alreadyAssigned then
+                    tanksFound = tanksFound + 1
+                    WowAddonTestDB.assignments.tanks[tanksFound] = name
+                    if self.tankInputs and self.tankInputs[tanksFound] then
+                        self.tankInputs[tanksFound]:SetText(name)
+                    end
+                    print(string.format("|cff00ff00[WowAddonTest]|r Assigned Tank %d (Feral): %s", tanksFound, name))
+                end
+            end
+        end
+    end
+    
+    -- 3. Assign CC (First Mage and First Warlock found)
+    for name, data in pairs(raidData) do
+        if data.class == "MAGE" and magesFound < 1 then
+            magesFound = 1
+            WowAddonTestDB.assignments.cc[1].name = name
+            if self.ccInputs and self.ccInputs[1] then
+                self.ccInputs[1]:SetText(name)
+            end
+            print(string.format("|cff00ff00[WowAddonTest]|r Assigned Mage CC: %s", name))
+        elseif data.class == "WARLOCK" and locksFound < 1 then
+            locksFound = 1
+            WowAddonTestDB.assignments.cc[2].name = name
+            if self.ccInputs and self.ccInputs[2] then
+                self.ccInputs[2]:SetText(name)
+            end
+            print(string.format("|cff00ff00[WowAddonTest]|r Assigned Warlock CC: %s", name))
+        end
+    end
+    
+    print("|cff00ff00[WowAddonTest] Auto-assignment complete.|r")
 end
 
 function RaidTools:UpdateAdvisorUI()
@@ -283,7 +360,14 @@ SlashCmdList["WOWADDONTEST"] = function(msg)
             addonTable.RaidTools.advisorContent:Show()
             addonTable.RaidTools.assignContent:Hide()
         end
+    elseif cmd == "scan" then
+        addonTable.GroupAdvisor:StartScan()
+    elseif cmd == "roles" or cmd == "detect" then
+        addonTable.RaidTools.autoAssignPending = true
+        addonTable.GroupAdvisor:StartScan()
     elseif msg == "raid" or msg == "tools" or msg == "" then
         addonTable.RaidTools:Toggle()
+    else
+        print("|cff00ffff[WowAddonTest]|r Commands: scan, roles, balance, ssc, tools")
     end
 end
