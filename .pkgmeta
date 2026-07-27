@@ -4,3 +4,4 @@ ignore:
   - README.md
   - .gitignore
   - .idea
+  - .junie

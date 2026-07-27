@@ -2,7 +2,7 @@
 ## Title: Watson
 ## Notes: Addon to make raiding the simplest part of your day
 ## Author: Your Mom
-## Version: 1.0
+## Version: @project-version@
 ## SavedVariables: WatsonDB
 
 Spells.lua
