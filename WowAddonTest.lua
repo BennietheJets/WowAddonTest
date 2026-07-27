@@ -92,10 +92,17 @@ local function OnEvent(self, event, ...)
         
         -- SSC Recording
         if addonTable.SSC and addonTable.SSC.recording then
-            local _, _, _, _, _, _, _, instanceID = GetInstanceInfo()
-            if instanceID == 548 then
-                if subevent == "SPELL_CAST_START" or subevent == "SPELL_CAST_SUCCESS" then
-                    addonTable.SSC:LogSpell(spellId, spellName, sourceName)
+            if subevent == "SPELL_CAST_START" or subevent == "SPELL_CAST_SUCCESS" then
+                -- Only log spells from hostile NPCs
+                local isHostileNPC = sourceFlags and 
+                    bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 and 
+                    bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0
+
+                if isHostileNPC then
+                    local _, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+                    if instanceID == 548 then
+                        addonTable.SSC:LogSpell(spellId, spellName, sourceName)
+                    end
                 end
             end
         end
@@ -131,7 +138,7 @@ local function OnEvent(self, event, ...)
                         PlaySound(8960, "Master")
                     end)
                 end
-            elseif sourceFlags and bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 and not ability then
+            elseif sourceFlags and bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 and bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0 and not ability then
                 print(string.format("New NPC Spell: %s (%d) from %s", spellName, spellId, sourceName or "Unknown"))
             end
 
