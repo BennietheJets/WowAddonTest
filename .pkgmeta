@@ -1,0 +1,6 @@
+package-as: Watson
+
+ignore:
+  - README.md
+  - .gitignore
+  - .idea
