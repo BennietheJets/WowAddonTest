@@ -32,24 +32,24 @@ The goal is to expand the existing raiding addon with essential utility features
 # Technical Design
 
 ### ✓ Step 1: Enhance Boss Mechanic Alerts
-- Update `WowAddonTest.lua` to handle `SPELL_AURA_APPLIED` and `SPELL_AURA_REMOVED` in `COMBAT_LOG_EVENT_UNFILTERED`.
+- Update `Watson.lua` to handle `SPELL_AURA_APPLIED` and `SPELL_AURA_REMOVED` in `COMBAT_LOG_EVENT_UNFILTERED`.
 - Refactor `Spells.lua` to support different alert types (Cast vs Aura) and act as a central registry.
 - Create the `Mechanics/` folder and add `Karazhan.lua` with example TBC abilities.
 
 ### ✓ Step 2: Implement Buff Checker for Ready Checks
 - Create `Buffs.lua` with a database of essential TBC buffs.
 - Implement `CheckUnitBuffs(unit)` and missing buff reporting logic.
-- Register and handle the `READY_CHECK` event in `WowAddonTest.lua`.
+- Register and handle the `READY_CHECK` event in `Watson.lua`.
 
 ### ✓ Step 3: Create Raid Leader Assignment GUI
 - Create `RaidTools.lua` and define the assignment frame using WoW XML/Lua API.
-- Implement logic for Tank/Icon and CC assignments with persistence in `WowAddonTestDB`.
+- Implement logic for Tank/Icon and CC assignments with persistence in `WatsonDB`.
 - Add "Broadcast" functionality to trigger notifications.
 
 ### ✓ Step 4: Hybrid Communication and Finalization
 - Create `Comm.lua` for the dual-layer communication system (Addon Message vs. Whisper).
 - Integrate `Comm.lua` with `RaidTools.lua` for assignment broadcasting.
-- Update `WowAddonTest.toc` with all new files and perform final cleanup.
+- Update `Watson.toc` with all new files and perform final cleanup.
 
 ### Current Implementation
 The addon currently has a basic skeleton for boss alerts based on spell IDs and a role detection system tailored for Classic/TBC.
@@ -59,10 +59,10 @@ The addon currently has a basic skeleton for boss alerts based on spell IDs and 
 - **Hybrid Communication**: Use a dual-layer system for assignments: hidden `SendAddonMessage` for addon users and standard Whispers/Raid Chat for everyone else.
 - **Event Handling**: Use `READY_CHECK` for buff notifications and `COMBAT_LOG_EVENT_UNFILTERED` for boss mechanics (casts and auras).
 - **UI Strategy**: Use pure WoW XML/Lua API for the GUI to keep the addon lightweight and dependency-free.
-- **Data Storage**: Leverage `WowAddonTestDB` to store assignments and user preferences.
+- **Data Storage**: Leverage `WatsonDB` to store assignments and user preferences.
 
 ### Proposed Changes
-- **`WowAddonTest.lua`**:
+- **`Watson.lua`**:
     - Centralize event registration and distribution.
     - Expand combat log handling to track `SPELL_AURA_APPLIED` and `SPELL_AURA_REMOVED`.
 - **`Comm.lua` (New)**:
@@ -80,19 +80,19 @@ The addon currently has a basic skeleton for boss alerts based on spell IDs and 
 ### Architecture Diagram
 ```mermaid
 graph TD
-    A[WowAddonTest.lua] -->|Events| B[Buffs.lua]
+    A[Watson.lua] -->|Events| B[Buffs.lua]
     A -->|Events| C[RaidTools.lua]
     A -->|Lookup| D[Spells.lua]
     D --- M[Mechanics/ Raid Files]
     C -->|Broadcast| E[Comm.lua]
     E -->|AddonMsg| F[Addon Users]
     E -->|Whisper/Chat| G[Other Players]
-    C -->|Store| H[WowAddonTestDB]
+    C -->|Store| H[WatsonDB]
 ```
 
 ### File Structure
-- `WowAddonTest.toc` (Modified: Added new files)
-- `WowAddonTest.lua` (Modified: Event routing)
+- `Watson.toc` (Modified: Added new files)
+- `Watson.lua` (Modified: Event routing)
 - `Spells.lua` (Modified: Registry initialization)
 - `Comm.lua` (New: Communication layer)
 - `Buffs.lua` (New: Buff data and logic)

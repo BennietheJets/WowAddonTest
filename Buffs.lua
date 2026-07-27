@@ -68,15 +68,15 @@ function addonTable:GetUnitRole(unit)
 
     -- 1. Check if they are in the Raid Leader's assignment list
     local name = UnitName(unit)
-    if WowAddonTestDB and WowAddonTestDB.assignments and WowAddonTestDB.assignments.tanks then
+    if WatsonDB and WatsonDB.assignments and WatsonDB.assignments.tanks then
         for i = 1, 3 do
-            if WowAddonTestDB.assignments.tanks[i] == name then
+            if WatsonDB.assignments.tanks[i] == name then
                 return "TANK"
             end
         end
     end
 
-    -- 2. If it's the player, use the advanced talent-based detection from WowAddonTest.lua
+    -- 2. If it's the player, use the advanced talent-based detection from Watson.lua
     if unit == "player" then
         return self:GetPlayerRoleCategory()
     end
@@ -178,7 +178,7 @@ function addonTable:ReportMissingBuffs()
     
     if isLeader then
         -- Leader: Check whole raid
-        print("|cffffff00[WowAddonTest] Raid Buff Check (|r|cff00ffff" .. numPaladins .. " Paladins|r|cffffff00):|r")
+        print("|cffffff00[Watson] Raid Buff Check (|r|cff00ffff" .. numPaladins .. " Paladins|r|cffffff00):|r")
         local numGroupMembers = GetNumGroupMembers()
         local raidMissing = false
         
@@ -201,7 +201,7 @@ function addonTable:ReportMissingBuffs()
         local missing = self:CheckUnitBuffs("player", numPaladins)
         if #missing > 0 then
             RaidNotice_AddMessage(RaidWarningFrame, "|cffff0000YOU ARE MISSING BUFFS: " .. table.concat(missing, ", ") .. "|r", ChatTypeInfo["RAID_WARNING"])
-            print("|cffff0000[WowAddonTest] You are missing buffs:|r " .. table.concat(missing, ", "))
+            print("|cffff0000[Watson] You are missing buffs:|r " .. table.concat(missing, ", "))
         end
     end
 end

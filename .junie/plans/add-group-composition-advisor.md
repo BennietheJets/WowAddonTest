@@ -23,7 +23,7 @@ Implement a "Group Composition Advisor" that helps Raid Leaders optimize raid gr
 # Technical Design
 
 ### Current Implementation
-The addon currently has basic role detection based on talent points for the player and heuristics/auras for others (`WowAddonTest.lua`, `Buffs.lua`). `RaidTools.lua` provides a basic assignment UI but lacks group management features.
+The addon currently has basic role detection based on talent points for the player and heuristics/auras for others (`Watson.lua`, `Buffs.lua`). `RaidTools.lua` provides a basic assignment UI but lacks group management features.
 
 ### Key Decisions
 - **Talent Inspection Queue**: Since `NotifyInspect` is rate-limited by the server, we will implement a serial queue that processes one player at a time and waits for `INSPECT_READY`.
@@ -49,7 +49,7 @@ graph TD
 ### File Structure
 - `GroupAdvisor.lua`: Core logic for scanning, analysis, and optimization.
 - `RaidTools.lua`: Updated to include the Advisor UI.
-- `WowAddonTest.toc`: Include `GroupAdvisor.lua`.
+- `Watson.toc`: Include `GroupAdvisor.lua`.
 
 
 # Testing
@@ -83,7 +83,7 @@ Develop the logic to organize the raid into optimal groups.
 
 ### ✓ Step 3: Create Advisor UI and Integration
 Add the Advisor interface to the Raid Tools frame.
-- Add a new "Group Advisor" tab or section to the `WowAddonTestRaidToolsFrame`.
+- Add a new "Group Advisor" tab or section to the `WatsonRaidToolsFrame`.
 - Implement a "Scan & Balance" button that triggers the scanning process.
 - Create a list view to display "Current" vs "Proposed" group assignments.
 - Add a "Apply All" button to execute group changes.

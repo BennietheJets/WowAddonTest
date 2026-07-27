@@ -1,7 +1,7 @@
 local addonName, addonTable = ...
 
 local Comm = {
-    prefix = "WOWADDONTEST",
+    prefix = "WATSON",
     users = {} -- Tracks players with the addon
 }
 addonTable.Comm = Comm
@@ -47,7 +47,7 @@ end
 function Comm:HandleAssignment(data, sender)
     -- Format: ASSIGN:Type:Target:Player
     -- Example: ASSIGN:TANK:Skull:MainTank
-    local msg = "|cffffff00[WowAddonTest] Assignment from " .. sender .. ":|r " .. data:gsub(":", " -> ")
+    local msg = "|cffffff00[Watson] Assignment from " .. sender .. ":|r " .. data:gsub(":", " -> ")
     RaidNotice_AddMessage(RaidWarningFrame, msg, ChatTypeInfo["RAID_WARNING"])
     print(msg)
 end
@@ -63,7 +63,7 @@ function Comm:BroadcastAssignment(assignType, target, player)
     -- 2. Fallback: If player doesn't have the addon, whisper them
     if player and player ~= "" and player ~= UnitName("player") then
         if not self.users[player] then
-            local whisperMsg = string.format("[WowAddonTest] Your assignment: %s for %s", assignType, target)
+            local whisperMsg = string.format("[Watson] Your assignment: %s for %s", assignType, target)
             SendChatMessage(whisperMsg, "WHISPER", nil, player)
         end
     end

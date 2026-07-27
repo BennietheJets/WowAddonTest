@@ -56,9 +56,9 @@ local function OnEvent(self, event, ...)
         local loadedAddonName = ...
         if loadedAddonName == addonName then
             -- Initialize SavedVariables
-            WowAddonTestDB = WowAddonTestDB or {}
-            WowAddonTestDB.spells = WowAddonTestDB.spells or {}
-            WowAddonTestDB.sscLog = WowAddonTestDB.sscLog or {}
+            WatsonDB = WatsonDB or {}
+            WatsonDB.spells = WatsonDB.spells or {}
+            WatsonDB.sscLog = WatsonDB.sscLog or {}
             
             -- Initialize RaidTools
             if addonTable.RaidTools and addonTable.RaidTools.Initialize then
@@ -113,10 +113,10 @@ local function OnEvent(self, event, ...)
         -- Handle Spell Casting
         if subevent == "SPELL_CAST_START" or subevent == "SPELL_CAST_SUCCESS" then
             -- Store spell in database if it's new
-            if WowAddonTestDB and WowAddonTestDB.spells and spellId then
-                if not WowAddonTestDB.spells[spellId] then
+            if WatsonDB and WatsonDB.spells and spellId then
+                if not WatsonDB.spells[spellId] then
                     local description = GetSpellDescription(spellId)
-                    WowAddonTestDB.spells[spellId] = {
+                    WatsonDB.spells[spellId] = {
                         name = spellName,
                         description = description,
                         firstSeen = date("%Y-%m-%d %H:%M:%S"),

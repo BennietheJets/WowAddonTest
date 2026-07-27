@@ -1,6 +1,6 @@
 ## Interface: 11505
 ## Title: Watson
-## Notes: A basic test addon.
+## Notes: Addon to make raiding the simplest part of your day
 ## Author: Your Mom
 ## Version: 1.0
 ## SavedVariables: WatsonDB

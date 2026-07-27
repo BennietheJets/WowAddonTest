@@ -4,7 +4,7 @@ local RaidTools = {}
 addonTable.RaidTools = RaidTools
 
 function RaidTools:Initialize()
-    WowAddonTestDB.assignments = WowAddonTestDB.assignments or {
+    WatsonDB.assignments = WatsonDB.assignments or {
         tanks = { [1] = "", [2] = "", [3] = "" }, -- 1: Skull, 2: Cross, 3: Square
         cc = { [1] = { name = "", class = "MAGE" }, [2] = { name = "", class = "WARLOCK" } }
     }
@@ -15,7 +15,7 @@ end
 function RaidTools:CreateMainFrame()
     if self.frame then return end
     
-    local f = CreateFrame("Frame", "WowAddonTestRaidToolsFrame", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "WatsonRaidToolsFrame", UIParent, "BackdropTemplate")
     f:SetSize(350, 450)
     f:SetPoint("CENTER")
     f:SetMovable(true)
@@ -81,9 +81,9 @@ function RaidTools:CreateMainFrame()
         eb:SetSize(150, 20)
         eb:SetPoint("LEFT", label, "RIGHT", 10, 0)
         eb:SetAutoFocus(false)
-        eb:SetText(WowAddonTestDB.assignments.tanks[i] or "")
+        eb:SetText(WatsonDB.assignments.tanks[i] or "")
         eb:SetScript("OnTextChanged", function(self)
-            WowAddonTestDB.assignments.tanks[i] = self:GetText()
+            WatsonDB.assignments.tanks[i] = self:GetText()
         end)
         self.tankInputs[i] = eb
     end
@@ -104,9 +104,9 @@ function RaidTools:CreateMainFrame()
         eb:SetSize(150, 20)
         eb:SetPoint("LEFT", label, "RIGHT", 10, 0)
         eb:SetAutoFocus(false)
-        eb:SetText(WowAddonTestDB.assignments.cc[i].name or "")
+        eb:SetText(WatsonDB.assignments.cc[i].name or "")
         eb:SetScript("OnTextChanged", function(self)
-            WowAddonTestDB.assignments.cc[i].name = self:GetText()
+            WatsonDB.assignments.cc[i].name = self:GetText()
         end)
         self.ccInputs[i] = eb
     end
@@ -145,7 +145,7 @@ function RaidTools:CreateAdvisorUI(parent)
     end)
     
     -- Suggestions List
-    local scrollFrame = CreateFrame("ScrollFrame", "WowAddonTestAdvisorScroll", parent, "UIPanelScrollFrameTemplate")
+    local scrollFrame = CreateFrame("ScrollFrame", "WatsonAdvisorScroll", parent, "UIPanelScrollFrameTemplate")
     scrollFrame:SetSize(300, 250)
     scrollFrame:SetPoint("TOPLEFT", 20, -120)
     
@@ -176,16 +176,16 @@ end
 function RaidTools:AutoAssignRoles()
     local raidData = addonTable.GroupAdvisor.raidData
     if not raidData or next(raidData) == nil then
-        print("|cffff0000[WowAddonTest] No scan data available. Run /wat scan first.|r")
+        print("|cffff0000[Watson] No scan data available. Run /wat scan first.|r")
         return
     end
 
-    print("|cffffff00[WowAddonTest] Auto-assigning roles based on scan...|r")
+    print("|cffffff00[Watson] Auto-assigning roles based on scan...|r")
     
     -- Reset current assignments for a clean "re-detect"
-    WowAddonTestDB.assignments.tanks = { [1] = "", [2] = "", [3] = "" }
-    WowAddonTestDB.assignments.cc[1].name = ""
-    WowAddonTestDB.assignments.cc[2].name = ""
+    WatsonDB.assignments.tanks = { [1] = "", [2] = "", [3] = "" }
+    WatsonDB.assignments.cc[1].name = ""
+    WatsonDB.assignments.cc[2].name = ""
     
     local tanksFound = 0
     local magesFound = 0
@@ -195,11 +195,11 @@ function RaidTools:AutoAssignRoles()
     for name, data in pairs(raidData) do
         if data.role == "TANK" and tanksFound < 3 then
             tanksFound = tanksFound + 1
-            WowAddonTestDB.assignments.tanks[tanksFound] = name
+            WatsonDB.assignments.tanks[tanksFound] = name
             if self.tankInputs and self.tankInputs[tanksFound] then
                 self.tankInputs[tanksFound]:SetText(name)
             end
-            print(string.format("|cff00ff00[WowAddonTest]|r Assigned Tank %d: %s (%s)", tanksFound, name, data.name))
+            print(string.format("|cff00ff00[Watson]|r Assigned Tank %d: %s (%s)", tanksFound, name, data.name))
         end
     end
     
@@ -209,15 +209,15 @@ function RaidTools:AutoAssignRoles()
             if data.class == "DRUID" and data.name == "Feral" and tanksFound < 3 then
                 -- Check if already assigned (unlikely as they are MELEE role usually)
                 local alreadyAssigned = false
-                for i=1, tanksFound do if WowAddonTestDB.assignments.tanks[i] == name then alreadyAssigned = true end end
+                for i=1, tanksFound do if WatsonDB.assignments.tanks[i] == name then alreadyAssigned = true end end
                 
                 if not alreadyAssigned then
                     tanksFound = tanksFound + 1
-                    WowAddonTestDB.assignments.tanks[tanksFound] = name
+                    WatsonDB.assignments.tanks[tanksFound] = name
                     if self.tankInputs and self.tankInputs[tanksFound] then
                         self.tankInputs[tanksFound]:SetText(name)
                     end
-                    print(string.format("|cff00ff00[WowAddonTest]|r Assigned Tank %d (Feral): %s", tanksFound, name))
+                    print(string.format("|cff00ff00[Watson]|r Assigned Tank %d (Feral): %s", tanksFound, name))
                 end
             end
         end
@@ -227,22 +227,22 @@ function RaidTools:AutoAssignRoles()
     for name, data in pairs(raidData) do
         if data.class == "MAGE" and magesFound < 1 then
             magesFound = 1
-            WowAddonTestDB.assignments.cc[1].name = name
+            WatsonDB.assignments.cc[1].name = name
             if self.ccInputs and self.ccInputs[1] then
                 self.ccInputs[1]:SetText(name)
             end
-            print(string.format("|cff00ff00[WowAddonTest]|r Assigned Mage CC: %s", name))
+            print(string.format("|cff00ff00[Watson]|r Assigned Mage CC: %s", name))
         elseif data.class == "WARLOCK" and locksFound < 1 then
             locksFound = 1
-            WowAddonTestDB.assignments.cc[2].name = name
+            WatsonDB.assignments.cc[2].name = name
             if self.ccInputs and self.ccInputs[2] then
                 self.ccInputs[2]:SetText(name)
             end
-            print(string.format("|cff00ff00[WowAddonTest]|r Assigned Warlock CC: %s", name))
+            print(string.format("|cff00ff00[Watson]|r Assigned Warlock CC: %s", name))
         end
     end
     
-    print("|cff00ff00[WowAddonTest] Auto-assignment complete.|r")
+    print("|cff00ff00[Watson] Auto-assignment complete.|r")
 end
 
 function RaidTools:UpdateAdvisorUI()
@@ -281,11 +281,11 @@ end
 function RaidTools:ApplySuggestions()
     if not self.lastSuggestions then return end
     if not IsInRaid() then
-        print("|cffff0000[WowAddonTest] Not in a raid.|r")
+        print("|cffff0000[Watson] Not in a raid.|r")
         return
     end
     
-    print("|cffffff00[WowAddonTest] Applying group assignments...|r")
+    print("|cffffff00[Watson] Applying group assignments...|r")
     for groupIndex, members in ipairs(self.lastSuggestions) do
         for _, p in ipairs(members) do
             local name, rank, subgroup = GetRaidRosterInfo(0) -- We need to find the unit index
@@ -309,11 +309,11 @@ function RaidTools:Toggle()
 end
 
 function RaidTools:Broadcast()
-    print("|cffffff00[WowAddonTest] Broadcasting assignments...|r")
+    print("|cffffff00[Watson] Broadcasting assignments...|r")
     
     local icons = { "Skull", "Cross", "Square" }
     for i = 1, 3 do
-        local name = WowAddonTestDB.assignments.tanks[i]
+        local name = WatsonDB.assignments.tanks[i]
         if name and name ~= "" then
             if addonTable.Comm then
                 addonTable.Comm:BroadcastAssignment("TANK", icons[i], name)
@@ -323,7 +323,7 @@ function RaidTools:Broadcast()
     
     local ccNames = { "Mage", "Warlock" }
     for i = 1, 2 do
-        local cc = WowAddonTestDB.assignments.cc[i]
+        local cc = WatsonDB.assignments.cc[i]
         if cc.name and cc.name ~= "" then
             if addonTable.Comm then
                 addonTable.Comm:BroadcastAssignment("CC", ccNames[i], cc.name)
@@ -339,8 +339,8 @@ function RaidTools:Broadcast()
 end
 
 -- Slash command to open the tools
-SLASH_WOWADDONTEST1 = "/wat"
-SlashCmdList["WOWADDONTEST"] = function(msg)
+SLASH_WATSON1 = "/wat"
+SlashCmdList["WATSON"] = function(msg)
     local cmd, arg = msg:match("^(%S*)%s*(.-)$")
     cmd = cmd:lower()
     
@@ -352,7 +352,7 @@ SlashCmdList["WOWADDONTEST"] = function(msg)
         elseif arg == "clear" then
             addonTable.SSC:ClearLog()
         else
-            print("|cff00ffff[WowAddonTest]|r SSC Commands: record, list, clear")
+            print("|cff00ffff[Watson]|r SSC Commands: record, list, clear")
         end
     elseif cmd == "balance" or cmd == "advisor" then
         addonTable.RaidTools:Toggle()
@@ -368,6 +368,6 @@ SlashCmdList["WOWADDONTEST"] = function(msg)
     elseif msg == "raid" or msg == "tools" or msg == "" then
         addonTable.RaidTools:Toggle()
     else
-        print("|cff00ffff[WowAddonTest]|r Commands: scan, roles, balance, ssc, tools")
+        print("|cff00ffff[Watson]|r Commands: scan, roles, balance, ssc, tools")
     end
 end

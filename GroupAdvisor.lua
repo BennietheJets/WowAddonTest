@@ -123,7 +123,7 @@ function GroupAdvisor:StartScan()
     end
     
     self.isScanning = true
-    print("|cffffff00[WowAddonTest] Starting talent scan...|r")
+    print("|cffffff00[Watson] Starting talent scan...|r")
     self:ProcessNextQueueItem()
 end
 
@@ -131,7 +131,7 @@ function GroupAdvisor:ProcessNextQueueItem()
     if #self.scanQueue == 0 then
         self.isScanning = false
         self.currentUnit = nil
-        print("|cff00ff00[WowAddonTest] Talent scan complete.|r")
+        print("|cff00ff00[Watson] Talent scan complete.|r")
         if self.onScanComplete then
             self:onScanComplete()
         end
@@ -152,7 +152,7 @@ function GroupAdvisor:ProcessNextQueueItem()
         if self.timeoutTimer then self.timeoutTimer:Cancel() end
         self.timeoutTimer = C_Timer.NewTimer(2, function()
             if self.currentUnit == unit then
-                print("|cffff0000[WowAddonTest] Inspection timeout for " .. name .. "|r")
+                print("|cffff0000[Watson] Inspection timeout for " .. name .. "|r")
                 if not self.raidData[name] then
                     self.raidData[name] = { role = "UNKNOWN", name = "Timeout", class = select(2, UnitClass(unit)) }
                 end
@@ -296,8 +296,8 @@ rosterFrame:SetScript("OnEvent", function(self, event)
     if IsInRaid() and IsRaidLeader() then
         local num = GetNumRaidMembers()
         if num == 25 and not GroupAdvisor.lastNotified25 then
-            print("|cff00ffff[WowAddonTest] Raid is now at 25 members. Use /wat balance to optimize groups.|r")
-            RaidNotice_AddMessage(RaidWarningFrame, "[WowAddonTest] Raid Full - Optimization Ready", ChatTypeInfo["RAID_WARNING"])
+            print("|cff00ffff[Watson] Raid is now at 25 members. Use /wat balance to optimize groups.|r")
+            RaidNotice_AddMessage(RaidWarningFrame, "[Watson] Raid Full - Optimization Ready", ChatTypeInfo["RAID_WARNING"])
             GroupAdvisor.lastNotified25 = true
         elseif num < 25 then
             GroupAdvisor.lastNotified25 = false

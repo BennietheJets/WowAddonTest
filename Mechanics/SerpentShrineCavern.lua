@@ -8,8 +8,8 @@ addonTable.SSC = {
 function addonTable.SSC:LogSpell(spellId, spellName, sourceName)
     if not self.recording then return end
     
-    if WowAddonTestDB and WowAddonTestDB.sscLog then
-        table.insert(WowAddonTestDB.sscLog, {
+    if WatsonDB and WatsonDB.sscLog then
+        table.insert(WatsonDB.sscLog, {
             id = spellId,
             name = spellName,
             source = sourceName,
@@ -26,7 +26,7 @@ end
 function addonTable.SSC:CreateUI()
     if self.frame then return end
     
-    local f = CreateFrame("Frame", "WowAddonTestSSCFrame", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "WatsonSSCFrame", UIParent, "BackdropTemplate")
     f:SetSize(550, 450)
     f:SetPoint("CENTER")
     f:SetMovable(true)
@@ -64,7 +64,7 @@ function addonTable.SSC:CreateUI()
     headerID:SetText("ID")
 
     -- ScrollFrame
-    local sf = CreateFrame("ScrollFrame", "WowAddonTestSSCScrollFrame", f, "UIPanelScrollFrameTemplate")
+    local sf = CreateFrame("ScrollFrame", "WatsonSSCScrollFrame", f, "UIPanelScrollFrameTemplate")
     sf:SetPoint("TOPLEFT", 15, -65)
     sf:SetPoint("BOTTOMRIGHT", -35, 45)
     
@@ -94,7 +94,7 @@ end
 function addonTable.SSC:UpdateUI()
     if not self.frame then return end
     
-    local logs = WowAddonTestDB.sscLog or {}
+    local logs = WatsonDB.sscLog or {}
     
     if not self.rows then self.rows = {} end
     
@@ -141,8 +141,8 @@ function addonTable.SSC:UpdateUI()
 end
 
 function addonTable.SSC:ListSpells()
-    if not WowAddonTestDB or not WowAddonTestDB.sscLog or #WowAddonTestDB.sscLog == 0 then
-        print("|cffff0000[WowAddonTest] No spells recorded in SSC.|r")
+    if not WatsonDB or not WatsonDB.sscLog or #WatsonDB.sscLog == 0 then
+        print("|cffff0000[Watson] No spells recorded in SSC.|r")
         -- Even if empty, we might want to show the frame? 
         -- Actually, the user might want to see the empty window.
     end
@@ -155,12 +155,12 @@ end
 function addonTable.SSC:ToggleRecording()
     self.recording = not self.recording
     local status = self.recording and "|cff00ff00Enabled|r" or "|cffff0000Disabled|r"
-    print("|cff00ffff[WowAddonTest]|r SSC Spell Recording: " .. status)
+    print("|cff00ffff[Watson]|r SSC Spell Recording: " .. status)
 end
 
 function addonTable.SSC:ClearLog()
-    if WowAddonTestDB then
-        WowAddonTestDB.sscLog = {}
-        print("|cff00ffff[WowAddonTest]|r SSC Log cleared.")
+    if WatsonDB then
+        WatsonDB.sscLog = {}
+        print("|cff00ffff[Watson]|r SSC Log cleared.")
     end
 end
