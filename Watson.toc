@@ -1,9 +1,9 @@
 ## Interface: 11505
-## Title: WowAddonTest
+## Title: Watson
 ## Notes: A basic test addon.
 ## Author: Your Mom
 ## Version: 1.0
-## SavedVariables: WowAddonTestDB
+## SavedVariables: WatsonDB
 
 Spells.lua
 Mechanics\Karazhan.lua
@@ -15,4 +15,4 @@ Comm.lua
 Buffs.lua
 GroupAdvisor.lua
 RaidTools.lua
-WowAddonTest.lua
+Watson.lua
