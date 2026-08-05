@@ -59,6 +59,7 @@ local function OnEvent(self, event, ...)
             WatsonDB = WatsonDB or {}
             WatsonDB.spells = WatsonDB.spells or {}
             WatsonDB.sscLog = WatsonDB.sscLog or {}
+            WatsonDB.tkLog = WatsonDB.tkLog or {}
             
             -- Initialize RaidTools
             if addonTable.RaidTools and addonTable.RaidTools.Initialize then
@@ -102,6 +103,23 @@ local function OnEvent(self, event, ...)
                     local _, _, _, _, _, _, _, instanceID = GetInstanceInfo()
                     if instanceID == 548 then
                         addonTable.SSC:LogSpell(spellId, spellName, sourceName)
+                    end
+                end
+            end
+        end
+
+        -- TK Recording
+        if addonTable.TK and addonTable.TK.recording then
+            if subevent == "SPELL_CAST_START" or subevent == "SPELL_CAST_SUCCESS" then
+                -- Only log spells from hostile NPCs
+                local isHostileNPC = sourceFlags and 
+                    bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 and 
+                    bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0
+
+                if isHostileNPC then
+                    local _, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+                    if instanceID == 550 then
+                        addonTable.TK:LogSpell(spellId, spellName, sourceName)
                     end
                 end
             end

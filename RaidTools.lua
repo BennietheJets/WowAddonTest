@@ -354,6 +354,16 @@ SlashCmdList["WATSON"] = function(msg)
         else
             print("|cff00ffff[Watson]|r SSC Commands: record, list, clear")
         end
+    elseif cmd == "tk" then
+        if arg == "record" then
+            addonTable.TK:ToggleRecording()
+        elseif arg == "list" then
+            addonTable.TK:ListSpells()
+        elseif arg == "clear" then
+            addonTable.TK:ClearLog()
+        else
+            print("|cff00ffff[Watson]|r TK Commands: record, list, clear")
+        end
     elseif cmd == "balance" or cmd == "advisor" then
         addonTable.RaidTools:Toggle()
         if addonTable.RaidTools.frame:IsShown() then
@@ -368,6 +378,6 @@ SlashCmdList["WATSON"] = function(msg)
     elseif msg == "raid" or msg == "tools" or msg == "" then
         addonTable.RaidTools:Toggle()
     else
-        print("|cff00ffff[Watson]|r Commands: scan, roles, balance, ssc, tools")
+        print("|cff00ffff[Watson]|r Commands: scan, roles, balance, ssc, tk, tools")
     end
 end
