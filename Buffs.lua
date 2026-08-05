@@ -11,17 +11,16 @@ addonTable.Buffs = {
     },
     -- Class/Role specific (mana users)
     Intellect = { name = "Intellect", provider = "MAGE",   auras = { "Arcane Intellect", "Arcane Brilliance" } },
-    Spirit    = { name = "Spirit",    provider = "PRIEST", auras = { "Divine Spirit", "Prayer of Spirit" } },
 }
 
 -- Mapping classes to buff requirements
 addonTable.ClassBuffs = {
     ["MAGE"] = { "Intellect" },
-    ["PRIEST"] = { "Intellect", "Spirit" },
+    ["PRIEST"] = { "Intellect" },
     ["WARLOCK"] = { "Intellect" },
-    ["DRUID"] = { "Intellect", "Spirit" },
+    ["DRUID"] = { "Intellect" },
     ["SHAMAN"] = { "Intellect" },
-    ["PALADIN"] = { "Intellect", "Spirit" },
+    ["PALADIN"] = { "Intellect" },
     ["HUNTER"] = { "Intellect" },
 }
 
